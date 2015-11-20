@@ -6,5 +6,6 @@
 	<classpathentry kind="var" path="THIRD_PARTY_JARS/jsoup-1.8.3.jar"/>
 	<classpathentry kind="var" path="THIRD_PARTY_JARS/lucene-analyzers-common-4.1.0.jar"/>
 	<classpathentry kind="var" path="THIRD_PARTY_JARS/lucene-core-4.1.0.jar"/>
+	<classpathentry kind="var" path="THIRD_PARTY_JARS/lucene-queryparser-4.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

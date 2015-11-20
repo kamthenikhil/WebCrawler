@@ -1,16 +1,12 @@
 package com.chinappa.information.retrieval.crawler;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -117,7 +113,7 @@ public class CrawlingAgent implements Runnable {
 							.timeout(5000);
 					jsoupConnection.followRedirects(true);
 					doc = jsoupConnection.get();
-					String documentText = fetchDocumenText(doc);
+					String documentText = FileHandlerUtil.fetchDocumentText(doc);
 					boolean processDoc = true;
 					if (webCrawlerConfiguration.isDuplicateDetectionEnabled()) {
 						// DuplicateDocumentDetectionUtil util = new
@@ -225,24 +221,6 @@ public class CrawlingAgent implements Runnable {
 		} catch (MalformedURLException e) {
 			return false;
 		}
-	}
-
-	/**
-	 * The following method extracts the paragraph text from the document.
-	 * 
-	 * @param doc
-	 * @return
-	 */
-	private String fetchDocumenText(Document doc) {
-
-		Elements paragraphs = doc.select(CrawlerConstants.HTML_LINKS_HREF);
-		StringBuilder documentText = new StringBuilder();
-		if (paragraphs != null && paragraphs.size() > 0) {
-			for (Element paragraph : paragraphs) {
-				documentText.append(paragraph.text());
-			}
-		}
-		return documentText.toString();
 	}
 
 	/**

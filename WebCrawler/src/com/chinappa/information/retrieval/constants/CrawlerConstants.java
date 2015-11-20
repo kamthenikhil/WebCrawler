@@ -11,10 +11,13 @@ public class CrawlerConstants {
 	public static final String HTTPS_PROTOCOL_PREFIX = "https";
 
 	public static final String HTML_LINKS_HREF = "a[href]";
+	
+	public static final String HTML_META_CONTENT = "meta[content]";
 
 	public static final String HTML_HREF = "href";
 
-	public static final String STOP_WORDS_FILE_PATH_EN = "config"+ File.separator +"stopWords_en";
+	public static final String STOP_WORDS_FILE_PATH_EN = "config"
+			+ File.separator + "stopWords_en";
 
 	public static final String OUTPUT_FILE_EXTENTION_HTML = ".html";
 
@@ -47,7 +50,7 @@ public class CrawlerConstants {
 	public static final String BMP_SUFFIX = ".bmp";
 
 	public static final String GIF_SUFFIX = ".gif";
-	
+
 	public static final String EDU_SUFFIX = ".edu";
 	/**
 	 * Resource bundle constants.
@@ -69,5 +72,13 @@ public class CrawlerConstants {
 	public static final String RB_DUPLICATE_DETECTION_ENABLED = "duplicate.detection.enabled";
 
 	public static final String DEFAULT_SEED_VALUE = "http://www.ucr.edu/";
+
+	public static final String TITLE_FIELD = "title";
+
+	public static final String CONTENT_FIELD = "content";
+
+	public static final String METADATA_FIELD = "metadata";
+	
+	public static final String INDEX_FIELD = "index";
 
 }

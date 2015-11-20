@@ -23,7 +23,10 @@ import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.chinappa.information.retrieval.configuration.WebCrawlerConfiguration;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import com.chinappa.information.retrieval.constants.CommonConstants;
 import com.chinappa.information.retrieval.constants.CrawlerConstants;
 
@@ -122,11 +125,10 @@ public class FileHandlerUtil {
 		}
 	}
 
-	public String fetchFromCompressedHTMLFile(String outputDirectory,
-			String fileName, String extension) {
+	public static String fetchFromCompressedHTMLFile(String outputDirectory,
+			String fileName) {
 
-		File file = new File(outputDirectory + File.separator + fileName
-				+ extension);
+		File file = new File(outputDirectory + File.separator + fileName);
 		FileInputStream input = null;
 		Reader reader = null;
 		StringBuilder decompressedData = new StringBuilder();
@@ -145,7 +147,8 @@ public class FileHandlerUtil {
 			try {
 				if (reader != null)
 					reader.close();
-				input.close();
+				if (input != null)
+					input.close();
 			} catch (IOException e) {
 			}
 		}
@@ -206,5 +209,71 @@ public class FileHandlerUtil {
 			}
 
 		}
+	}
+
+	public static Properties readFromPropertiesFile(String directory,
+			String fileName) {
+		Properties properties = new Properties();
+		InputStream input = null;
+		try {
+			input = new FileInputStream(directory + File.separator + fileName);
+			properties.load(input);
+		} catch (IOException io) {
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+				}
+			}
+
+		}
+		return properties;
+	}
+
+	/**
+	 * The following method extracts the paragraph text from the document.
+	 * 
+	 * @param doc
+	 * @return
+	 */
+	public static String fetchDocumentText(Document doc) {
+
+		Elements paragraphs = doc.select(CrawlerConstants.HTML_PARAGRAPHS);
+		StringBuilder documentText = new StringBuilder();
+		if (paragraphs != null && paragraphs.size() > 0) {
+			for (Element paragraph : paragraphs) {
+				documentText.append(paragraph.text());
+				documentText.append(CommonConstants.SPACE);
+			}
+		}
+		paragraphs = doc.select(CrawlerConstants.HTML_LINKS_HREF);
+		if (paragraphs != null && paragraphs.size() > 0) {
+			for (Element paragraph : paragraphs) {
+				documentText.append(paragraph.text());
+				documentText.append(CommonConstants.SPACE);
+			}
+		}
+		return documentText.toString();
+	}
+	
+	/**
+	 * The following method extracts the metadata content from the document.
+	 * 
+	 * @param doc
+	 * @return
+	 */
+	public static String fetchDocumentMetadata(Document doc) {
+
+		Elements elements = doc.select(CrawlerConstants.HTML_META_CONTENT);
+		StringBuilder metadataContent = new StringBuilder();
+		if (elements != null && elements.size() > 0) {
+			for (Element element : elements) {
+				metadataContent.append(element.attr(CrawlerConstants.CONTENT_FIELD));
+				metadataContent.append(CommonConstants.SPACE);
+			}
+		}
+		//System.out.println(metadataContent);
+		return metadataContent.toString();
 	}
 }

@@ -10,4 +10,5 @@ public class CommonConstants {
 	public static final String COLON = ":";
 	public static final String ASTERISK = "*";
 	public static final String FORWARD_SLASH = "/";
+	public static final String NEW_LINE = "\n";
 }
