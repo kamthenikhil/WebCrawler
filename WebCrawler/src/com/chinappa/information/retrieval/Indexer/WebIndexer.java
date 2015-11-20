@@ -6,13 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -22,55 +22,74 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.jsoup.Jsoup;
 
 import com.chinappa.information.retrieval.configuration.WebCrawlerConfiguration;
 import com.chinappa.information.retrieval.constants.CrawlerConstants;
+import com.chinappa.information.retrieval.dto.SearchResultDTO;
 import com.chinappa.information.retrieval.util.FileHandlerUtil;
 
 public class WebIndexer {
 
+	public WebIndexer() {
+		init();
+	}
+
 	public void init() {
 
 		WebCrawlerConfiguration.getInstance();
-		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_41);
-		Directory index = new RAMDirectory();
-		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41,
-				analyzer);
-		createIndexForDocuments(index, config);
-		Query query = prepareQuery(analyzer);
-		searchDocuments(index, query);
 	}
 
-	private void searchDocuments(Directory index, Query query) {
+	public void buildIndex() {
+
+		Directory directory = null;
+		try {
+			directory = FSDirectory.open(new File(
+					CrawlerConstants.INDEX_DIRECTORY));
+			IndexWriterConfig config = getIndexWriterConfig();
+			createIndexForDocuments(directory, config);
+		} catch (IOException e) {
+		} finally {
+			if (directory != null) {
+				try {
+					directory.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+	}
+
+	public SearchResultDTO[] searchDocuments(String queryString) {
+		
+		SearchResultDTO[] searchResults = null;
 		try {
 			int hitsPerPage = 10;
-			IndexReader reader = DirectoryReader.open(index);
-			IndexSearcher searcher = new IndexSearcher(reader);
+			searchResults = new SearchResultDTO[hitsPerPage];
+			IndexSearcher searcher = new IndexSearcher(
+					DirectoryReader.open(FSDirectory.open(new File(
+							CrawlerConstants.INDEX_DIRECTORY))));
+			Query query = prepareQuery(queryString, getAnalyzer());
 			TopScoreDocCollector collector = TopScoreDocCollector.create(
 					hitsPerPage, true);
 			searcher.search(query, collector);
 			ScoreDoc[] hits = collector.topDocs().scoreDocs;
 			System.out.println("Found " + hits.length + " hits.");
 			for (int i = 0; i < hits.length; ++i) {
+				SearchResultDTO searchResultDTO = new SearchResultDTO();
 				int docId = hits[i].doc;
 				Document d = searcher.doc(docId);
-				System.out.println((i + 1) + ". "
-						+ d.get(CrawlerConstants.INDEX_FIELD) + ": "
-						+ d.get(CrawlerConstants.TITLE_FIELD));
+				searchResultDTO.setUrl(d.get(CrawlerConstants.INDEX_FIELD));
+				searchResultDTO.setTitle(d.get(CrawlerConstants.TITLE_FIELD));
+				searchResults[i] = searchResultDTO;
 			}
-
-			// reader can only be closed when there
-			// is no need to access the documents any more.
-			reader.close();
 		} catch (IOException e) {
 		}
+		return searchResults;
 	}
 
-	private Query prepareQuery(StandardAnalyzer analyzer) {
-		String querystr = "davis";
+	private Query prepareQuery(String queryString, Analyzer analyzer) {
 		Query query = null;
 		try {
 			String[] fields = new String[] { CrawlerConstants.TITLE_FIELD,
@@ -81,19 +100,20 @@ public class WebIndexer {
 			fieldBoost.put(CrawlerConstants.METADATA_FIELD, 2f);
 			fieldBoost.put(CrawlerConstants.CONTENT_FIELD, 1f);
 			query = new MultiFieldQueryParser(Version.LUCENE_41, fields,
-					analyzer, fieldBoost).parse(querystr);
+					analyzer, fieldBoost).parse(queryString);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return query;
 	}
 
-	private void createIndexForDocuments(Directory index,
+	private void createIndexForDocuments(Directory directory,
 			IndexWriterConfig config) {
-		IndexWriter indexWriter;
+		IndexWriter indexWriter = null;
 		try {
-			indexWriter = new IndexWriter(index, config);
+			if (IndexWriter.isLocked(directory)) {
+				IndexWriter.unlock(directory);
+			}
+			indexWriter = new IndexWriter(directory, config);
 			Properties properties = FileHandlerUtil.readFromPropertiesFile(
 					WebCrawlerConfiguration.getInstance().getOutputDirectory(),
 					CrawlerConstants.DEFAULT_MAPPINGS_FILENAME);
@@ -119,17 +139,23 @@ public class WebIndexer {
 					String content = FileHandlerUtil.fetchDocumentText(doc);
 					String metadata = FileHandlerUtil
 							.fetchDocumentMetadata(doc);
-					addDoc(indexWriter, doc.title(), metadata, content,
-							filename);
+					addDocumentFieldsToIndex(indexWriter, doc.title(),
+							metadata, content, url);
 				}
 			}
-			indexWriter.close();
 		} catch (IOException e) {
+		} finally {
+			try {
+				if (indexWriter != null)
+					indexWriter.close();
+			} catch (IOException e) {
+			}
 		}
 	}
 
-	private void addDoc(IndexWriter indexWriter, String title, String metadata,
-			String content, String filename) throws IOException {
+	private void addDocumentFieldsToIndex(IndexWriter indexWriter,
+			String title, String metadata, String content, String url)
+			throws IOException {
 		Document doc = new Document();
 		doc.add(new TextField(CrawlerConstants.TITLE_FIELD, title,
 				Field.Store.YES));
@@ -137,8 +163,19 @@ public class WebIndexer {
 				Field.Store.NO));
 		doc.add(new TextField(CrawlerConstants.CONTENT_FIELD, content,
 				Field.Store.NO));
-		doc.add(new StringField(CrawlerConstants.INDEX_FIELD, filename,
+		doc.add(new StringField(CrawlerConstants.INDEX_FIELD, url,
 				Field.Store.YES));
 		indexWriter.addDocument(doc);
+	}
+
+	private IndexWriterConfig getIndexWriterConfig() {
+		IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41,
+				getAnalyzer());
+		return config;
+	}
+
+	private Analyzer getAnalyzer() {
+		Analyzer analyzer = new StopAnalyzer(Version.LUCENE_41);
+		return analyzer;
 	}
 }

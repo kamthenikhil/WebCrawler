@@ -80,5 +80,7 @@ public class CrawlerConstants {
 	public static final String METADATA_FIELD = "metadata";
 	
 	public static final String INDEX_FIELD = "index";
+	
+	public static final String INDEX_DIRECTORY = "index";
 
 }
