@@ -15,7 +15,6 @@ import org.apache.lucene.util.Version;
 import org.tartarus.snowball.ext.EnglishStemmer;
 
 import com.chinappa.crawler.constant.CrawlerConstants;
-import com.chinappa.information.retrieval.algorithm.SimHash;
 import com.chinappa.information.retrieval.util.FileHandlerUtil;
 
 public class DuplicateDocumentDetectionUtil {
@@ -71,7 +70,7 @@ public class DuplicateDocumentDetectionUtil {
 			} catch (IOException e) {
 			}
 		}
-		int simHash = SimHash.simHash32(tokenMap);
+		int simHash = SimHashUtil.simHash32(tokenMap);
 		synchronized (documentSimHashMap) {
 			if (documentSimHashMap.containsKey(simHash)) {
 				return true;
