@@ -1,4 +1,4 @@
-package com.chinappa.information.retrieval.crawler;
+package com.chinappa.crawler;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.chinappa.information.retrieval.configuration.WebCrawlerConfiguration;
-import com.chinappa.information.retrieval.constants.CrawlerConstants;
+import com.chinappa.crawler.configuration.WebCrawlerConfiguration;
+import com.chinappa.crawler.constant.CrawlerConstants;
 import com.chinappa.information.retrieval.util.FileHandlerUtil;
 
 public class WebCrawler {

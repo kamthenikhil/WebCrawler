@@ -1,14 +1,14 @@
-package com.chinappa.information.retrieval.configuration;
+package com.chinappa.crawler.configuration;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.chinappa.information.retrieval.constants.CrawlerConstants;
+import com.chinappa.crawler.constant.CrawlerConstants;
+import com.chinappa.information.retrieval.util.FileHandlerUtil;
 
 public class WebCrawlerConfiguration {
 
@@ -88,25 +88,25 @@ public class WebCrawlerConfiguration {
 		Boolean booleanValue = null;
 
 		String param = CrawlerConstants.RB_NUMBER_OF_THREADS;
-		intValue = readIntegerFromResourceBundle(rb, param);
+		intValue = FileHandlerUtil.readIntegerFromResourceBundle(rb, param);
 		if (intValue != null) {
 			threadCount = intValue;
 		}
 
 		param = CrawlerConstants.RB_LEVELS;
-		intValue = readIntegerFromResourceBundle(rb, param);
+		intValue = FileHandlerUtil.readIntegerFromResourceBundle(rb, param);
 		if (intValue != null) {
 			levels = intValue;
 		}
 
 		param = CrawlerConstants.RB_PAGE_LIMIT;
-		Long longValue = readLongFromResourceBundle(rb, param);
+		Long longValue = FileHandlerUtil.readLongFromResourceBundle(rb, param);
 		if (longValue != null) {
 			pageLimit.set(longValue);
 		}
 
 		param = CrawlerConstants.RB_INPUT_DIRECTORY;
-		stringValue = readStringFromResourceBundle(rb, param);
+		stringValue = FileHandlerUtil.readStringFromResourceBundle(rb, param);
 		if (stringValue != null) {
 			inputDirectory = stringValue;
 		}
@@ -117,7 +117,7 @@ public class WebCrawlerConfiguration {
 		}
 
 		param = CrawlerConstants.RB_OUTPUT_DIRECTORY;
-		stringValue = readStringFromResourceBundle(rb, param);
+		stringValue = FileHandlerUtil.readStringFromResourceBundle(rb, param);
 		if (stringValue != null) {
 			outputDirectory = stringValue;
 		}
@@ -128,7 +128,7 @@ public class WebCrawlerConfiguration {
 		}
 
 		param = CrawlerConstants.RB_SEED_FILENAME;
-		stringValue = readStringFromResourceBundle(rb, param);
+		stringValue = FileHandlerUtil.readStringFromResourceBundle(rb, param);
 		if (stringValue != null) {
 			seedFileName = stringValue;
 		}
@@ -147,150 +147,16 @@ public class WebCrawlerConfiguration {
 		}
 
 		param = CrawlerConstants.RB_COMPRESSION_ENABLED;
-		booleanValue = readBooleanFromResourceBundle(rb, param);
+		booleanValue = FileHandlerUtil.readBooleanFromResourceBundle(rb, param);
 		if (booleanValue != null) {
 			isCompressionEnabled = booleanValue;
 		}
 
 		param = CrawlerConstants.RB_DUPLICATE_DETECTION_ENABLED;
-		booleanValue = readBooleanFromResourceBundle(rb, param);
+		booleanValue = FileHandlerUtil.readBooleanFromResourceBundle(rb, param);
 		if (booleanValue != null) {
 			isDuplicateDetectionEnabled = booleanValue;
 		}
-	}
-
-	/**
-	 * The following method reads the property file and returns corresponding
-	 * {@link Long} value.
-	 * 
-	 * @param rb
-	 * @param param
-	 * @return
-	 */
-	private Long readLongFromResourceBundle(ResourceBundle rb, String param) {
-		Long variable = null;
-		try {
-			String temp = rb.getString(param);
-			if (temp != null) {
-				if (!temp.trim().isEmpty()) {
-					try {
-						variable = Long.parseLong(temp);
-						return variable;
-					} catch (IllegalArgumentException e) {
-						showInfoMessage(param);
-					}
-				} else {
-					showInfoMessage(param);
-				}
-			} else {
-				showInfoMessage(param);
-			}
-		} catch (MissingResourceException e) {
-			showInfoMessage(param);
-		}
-		return variable;
-	}
-
-	/**
-	 * The following method reads the property file and returns corresponding
-	 * {@link Integer} value.
-	 * 
-	 * @param rb
-	 * @param param
-	 * @return
-	 */
-	private Integer readIntegerFromResourceBundle(ResourceBundle rb,
-			String param) {
-		Integer variable = null;
-		try {
-			String temp = rb.getString(param);
-			if (temp != null) {
-				if (!temp.trim().isEmpty()) {
-					try {
-						variable = Integer.parseInt(temp);
-						return variable;
-					} catch (IllegalArgumentException e) {
-						showInfoMessage(param);
-					}
-				} else {
-					showInfoMessage(param);
-				}
-			} else {
-				showInfoMessage(param);
-			}
-		} catch (MissingResourceException e) {
-			showInfoMessage(param);
-		}
-		return variable;
-	}
-
-	/**
-	 * The following method reads the property file and returns corresponding
-	 * {@link String} value.
-	 * 
-	 * @param rb
-	 * @param param
-	 * @return
-	 */
-	private String readStringFromResourceBundle(ResourceBundle rb, String param) {
-
-		String variable = null;
-		try {
-			String temp = rb.getString(param);
-			if (temp != null) {
-				if (!temp.trim().isEmpty()) {
-					variable = temp;
-					return variable;
-				} else {
-					showInfoMessage(param);
-				}
-			} else {
-				showInfoMessage(param);
-			}
-		} catch (MissingResourceException e) {
-			showInfoMessage(param);
-		}
-		return variable;
-	}
-
-	/**
-	 * The following method reads the property file and returns corresponding
-	 * {@link Boolean} value.
-	 * 
-	 * @param rb
-	 * @param param
-	 * @return
-	 */
-	private Boolean readBooleanFromResourceBundle(ResourceBundle rb,
-			String param) {
-
-		Boolean variable = null;
-		try {
-			String temp = rb.getString(param);
-			if (temp != null) {
-				if (!temp.trim().isEmpty()) {
-					variable = Boolean.parseBoolean(temp);
-				} else {
-					showInfoMessage(param);
-				}
-			} else {
-				showInfoMessage(param);
-			}
-		} catch (MissingResourceException e) {
-			showInfoMessage(param);
-		}
-		return variable;
-	}
-
-	/**
-	 * The following method is used to display messages for information purpose
-	 * only.
-	 * 
-	 * @param param
-	 */
-	private void showInfoMessage(String param) {
-		System.out.println("Incorrect value found for " + param + " parameter");
-		System.out.println("Setting it to dafault value..");
 	}
 
 	/**

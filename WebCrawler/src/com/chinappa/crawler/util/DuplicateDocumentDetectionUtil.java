@@ -1,4 +1,4 @@
-package com.chinappa.information.retrieval.util;
+package com.chinappa.crawler.util;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -14,7 +14,9 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.util.Version;
 import org.tartarus.snowball.ext.EnglishStemmer;
 
-import com.chinappa.information.retrieval.constants.CrawlerConstants;
+import com.chinappa.crawler.constant.CrawlerConstants;
+import com.chinappa.information.retrieval.algorithm.SimHash;
+import com.chinappa.information.retrieval.util.FileHandlerUtil;
 
 public class DuplicateDocumentDetectionUtil {
 

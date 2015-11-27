@@ -1,4 +1,4 @@
-package com.chinappa.information.retrieval.crawler;
+package com.chinappa.crawler;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -14,12 +14,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.chinappa.information.retrieval.configuration.WebCrawlerConfiguration;
-import com.chinappa.information.retrieval.constants.CommonConstants;
-import com.chinappa.information.retrieval.constants.CrawlerConstants;
-import com.chinappa.information.retrieval.util.DuplicateDocumentDetectionUtil;
+import com.chinappa.crawler.configuration.WebCrawlerConfiguration;
+import com.chinappa.crawler.constant.CrawlerConstants;
+import com.chinappa.crawler.util.DuplicateDocumentDetectionUtil;
+import com.chinappa.crawler.util.RobotExclusionUtil;
+import com.chinappa.information.retrieval.constant.CommonConstants;
 import com.chinappa.information.retrieval.util.FileHandlerUtil;
-import com.chinappa.information.retrieval.util.RobotExclusionUtil;
 
 public class CrawlingAgent implements Runnable {
 
@@ -113,13 +113,14 @@ public class CrawlingAgent implements Runnable {
 							.timeout(5000);
 					jsoupConnection.followRedirects(true);
 					doc = jsoupConnection.get();
-					String documentText = FileHandlerUtil.fetchDocumentText(doc);
+					String content = FileHandlerUtil.fetchDocumentText(doc)
+							+ FileHandlerUtil.fetchAnchorText(doc);
 					boolean processDoc = true;
 					if (webCrawlerConfiguration.isDuplicateDetectionEnabled()) {
 						// DuplicateDocumentDetectionUtil util = new
 						// DuplicateDocumentDetectionUtil();
 						if (DuplicateDocumentDetectionUtil.isDuplicateDocument(
-								documentText, urlString)) {
+								content, urlString)) {
 							processDoc = false;
 						}
 					}
@@ -233,7 +234,7 @@ public class CrawlingAgent implements Runnable {
 	 * @return
 	 */
 	private ArrayList<String> fetchChildURLs(String url, Document doc) {
-		Elements elements = doc.select(CrawlerConstants.HTML_LINKS_HREF);
+		Elements elements = doc.select(CommonConstants.HTML_LINKS_HREF);
 		ArrayList<String> childURLs = null;
 		if (elements != null && elements.size() > 0) {
 			childURLs = new ArrayList<String>();

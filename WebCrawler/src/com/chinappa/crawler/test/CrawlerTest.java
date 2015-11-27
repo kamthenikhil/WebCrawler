@@ -1,6 +1,6 @@
-package com.chinappa.information.retrieval.test;
+package com.chinappa.crawler.test;
 
-import com.chinappa.information.retrieval.crawler.WebCrawler;
+import com.chinappa.crawler.WebCrawler;
 
 /**
  * The class is used for initializing the crawler.

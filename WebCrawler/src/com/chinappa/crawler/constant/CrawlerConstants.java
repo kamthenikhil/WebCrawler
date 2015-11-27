@@ -1,4 +1,4 @@
-package com.chinappa.information.retrieval.constants;
+package com.chinappa.crawler.constant;
 
 import java.io.File;
 
@@ -9,10 +9,6 @@ public class CrawlerConstants {
 	public static final String FTP_PROTOCOL_PREFIX = "ftp";
 
 	public static final String HTTPS_PROTOCOL_PREFIX = "https";
-
-	public static final String HTML_LINKS_HREF = "a[href]";
-	
-	public static final String HTML_META_CONTENT = "meta[content]";
 
 	public static final String HTML_HREF = "href";
 
@@ -34,10 +30,6 @@ public class CrawlerConstants {
 	public static final String DEFAULT_MAPPINGS_FILENAME = "mappings.properties";
 
 	public static final String DEFAULT_SEED_FILENAME = "seed";
-
-	public static final String ENCODING_CHARSET = "UTF-8";
-
-	public static final String HTML_PARAGRAPHS = "p";
 
 	public static final String PDF_SUFFIX = ".pdf";
 
@@ -72,15 +64,5 @@ public class CrawlerConstants {
 	public static final String RB_DUPLICATE_DETECTION_ENABLED = "duplicate.detection.enabled";
 
 	public static final String DEFAULT_SEED_VALUE = "http://www.ucr.edu/";
-
-	public static final String TITLE_FIELD = "title";
-
-	public static final String CONTENT_FIELD = "content";
-
-	public static final String METADATA_FIELD = "metadata";
-	
-	public static final String INDEX_FIELD = "index";
-	
-	public static final String INDEX_DIRECTORY = "index";
 
 }

@@ -1,4 +1,4 @@
-package com.chinappa.information.retrieval.util;
+package com.chinappa.crawler.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
