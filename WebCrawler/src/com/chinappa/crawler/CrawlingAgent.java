@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,10 +27,18 @@ public class CrawlingAgent implements Runnable {
 	public static AtomicInteger fileno = new AtomicInteger(0);
 
 	private ConcurrentHashMap<String, String> urlMap;
+	/**
+	 * Stores the list of incoming URLs
+	 */
+	private ConcurrentHashMap<String, List<String>> inLinkMap = null;
+	/**
+	 * Stores count of all the outgoing links for all the urls being crawled.
+	 */
+	private ConcurrentHashMap<String, Integer> outLinkCount = null;
 
 	private ConcurrentLinkedQueue<Runnable> threadQueue;
 
-	private String urlString;
+	public String urlString;
 
 	private int level;
 
@@ -44,8 +53,12 @@ public class CrawlingAgent implements Runnable {
 	 * @param level
 	 */
 	public CrawlingAgent(ConcurrentHashMap<String, String> urlMap,
+			ConcurrentHashMap<String, List<String>> inLinkMap,
+			ConcurrentHashMap<String, Integer> outLinkMap,
 			ConcurrentLinkedQueue<Runnable> threadQueue, String url, int level) {
 		this.urlMap = urlMap;
+		this.inLinkMap = inLinkMap;
+		this.outLinkCount = outLinkMap;
 		this.threadQueue = threadQueue;
 		this.urlString = url;
 		this.level = level;
@@ -62,6 +75,10 @@ public class CrawlingAgent implements Runnable {
 					urlString = urlString.replaceAll("(/*)$", "");
 					URL url = new URL(urlString);
 					boolean isNewURL = false;
+					if (!url.getHost().toLowerCase()
+							.endsWith(CrawlerConstants.EDU_SUFFIX)) {
+						return;
+					}
 					synchronized (urlMap) {
 						if (!urlMap.containsKey(urlString)) {
 							urlMap.put(urlString, CommonConstants.EMPTY_STRING);
@@ -73,7 +90,17 @@ public class CrawlingAgent implements Runnable {
 						if (childURLs != null && childURLs.size() > 0) {
 							for (String childURL : childURLs) {
 								threadQueue.add(new CrawlingAgent(urlMap,
-										threadQueue, childURL, level));
+										inLinkMap, outLinkCount, threadQueue,
+										childURL, level));
+								if (!inLinkMap.containsKey(childURLs)) {
+									synchronized (inLinkMap) {
+										if (!inLinkMap.containsKey(childURLs)) {
+											inLinkMap.put(childURL,
+													new ArrayList<String>());
+										}
+									}
+								}
+								inLinkMap.get(childURL).add(urlString);
 							}
 						}
 					} else {
@@ -170,6 +197,8 @@ public class CrawlingAgent implements Runnable {
 				return null;
 			}
 		} else {
+			inLinkMap.remove(urlString);
+			outLinkCount.remove(urlString);
 			return null;
 		}
 	}
@@ -235,9 +264,8 @@ public class CrawlingAgent implements Runnable {
 	 */
 	private ArrayList<String> fetchChildURLs(String url, Document doc) {
 		Elements elements = doc.select(CommonConstants.HTML_LINKS_HREF);
-		ArrayList<String> childURLs = null;
+		ArrayList<String> childURLs = new ArrayList<String>();
 		if (elements != null && elements.size() > 0) {
-			childURLs = new ArrayList<String>();
 			for (Element element : elements) {
 				String childURLString = element
 						.attr(CrawlerConstants.HTML_HREF).trim();
@@ -248,10 +276,6 @@ public class CrawlingAgent implements Runnable {
 						if (childURLString.length() <= 1) {
 							try {
 								URL childURL = new URL(childURLString);
-								if (!childURL.getHost().toLowerCase()
-										.endsWith(CrawlerConstants.EDU_SUFFIX)) {
-									break;
-								}
 							} catch (MalformedURLException e) {
 								break;
 							}
@@ -262,9 +286,14 @@ public class CrawlingAgent implements Runnable {
 						}
 					}
 					childURLString.replaceAll("/$", "");
-					childURLs.add(childURLString);
+					if (isValidURLProtocol(childURLString)
+							&& RobotExclusionUtil
+									.robotsShouldFollow(childURLString)) {
+						childURLs.add(childURLString);
+					}
 				}
 			}
+			outLinkCount.put(url, childURLs.size());
 		}
 		return childURLs;
 	}
