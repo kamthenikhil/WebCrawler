@@ -28,8 +28,6 @@ public class CrawlerConstants {
 	public static final String DEFAULT_OUTPUT_DIRECTORY = "output";
 
 	public static final String DEFAULT_MAPPINGS_FILENAME = "mappings.properties";
-	
-	public static final String DEFAULT_PAGERANK_FILENAME = "pageRanks.properties";
 
 	public static final String DEFAULT_SEED_FILENAME = "seed";
 

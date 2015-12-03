@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import com.chinappa.crawler.configuration.WebCrawlerConfiguration;
 import com.chinappa.crawler.constant.CrawlerConstants;
 import com.chinappa.crawler.util.PageRankUtil;
+import com.chinappa.information.retrieval.constant.CommonConstants;
 import com.chinappa.information.retrieval.util.FileHandlerUtil;
 
 public class WebCrawler {
@@ -100,10 +101,10 @@ public class WebCrawler {
 			FileHandlerUtil.writeIntoPropertiesFile(PageRankUtil
 					.calculatePageRank(inLinkMap, outLinkCount, 0.01f, 0.85f),
 					webCrawlerConfiguration.getOutputDirectory(),
-					CrawlerConstants.DEFAULT_PAGERANK_FILENAME);
+					CommonConstants.DEFAULT_PAGERANK_FILENAME);
 			FileHandlerUtil.writeIntoPropertiesFile(urlMap,
 					webCrawlerConfiguration.getOutputDirectory(),
-					CrawlerConstants.DEFAULT_MAPPINGS_FILENAME);
+					CommonConstants.DEFAULT_MAPPINGS_FILENAME);
 		}
 	}
 }

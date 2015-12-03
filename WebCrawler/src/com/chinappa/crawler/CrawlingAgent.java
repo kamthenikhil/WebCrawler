@@ -92,15 +92,16 @@ public class CrawlingAgent implements Runnable {
 								threadQueue.add(new CrawlingAgent(urlMap,
 										inLinkMap, outLinkCount, threadQueue,
 										childURL, level));
-								if (!inLinkMap.containsKey(childURLs)) {
+								if (!inLinkMap.containsKey(childURL)) {
 									synchronized (inLinkMap) {
-										if (!inLinkMap.containsKey(childURLs)) {
+										if (!inLinkMap.containsKey(childURL)) {
 											inLinkMap.put(childURL,
 													new ArrayList<String>());
 										}
 									}
 								}
-								inLinkMap.get(childURL).add(urlString);
+								inLinkMap.get(childURL).add(
+										urlString.replaceAll("(/*)$", ""));
 							}
 						}
 					} else {
@@ -144,8 +145,6 @@ public class CrawlingAgent implements Runnable {
 							+ FileHandlerUtil.fetchAnchorText(doc);
 					boolean processDoc = true;
 					if (webCrawlerConfiguration.isDuplicateDetectionEnabled()) {
-						// DuplicateDocumentDetectionUtil util = new
-						// DuplicateDocumentDetectionUtil();
 						if (DuplicateDocumentDetectionUtil.isDuplicateDocument(
 								content, urlString)) {
 							processDoc = false;
@@ -187,13 +186,14 @@ public class CrawlingAgent implements Runnable {
 				}
 				return childURLs;
 			default:
-				int temp = fileno.addAndGet(1);
-				FileHandlerUtil.writeURLFileToDisk(urlString,
-						webCrawlerConfiguration.getOutputDirectory(), level
-								+ CommonConstants.FULL_STOP + temp, extension);
-				urlMap.put(urlString, level + CommonConstants.FULL_STOP + temp
-						+ extension);
-				isSuccess = true;
+				// int temp = fileno.addAndGet(1);
+				// FileHandlerUtil.writeURLFileToDisk(urlString,
+				// webCrawlerConfiguration.getOutputDirectory(), level
+				// + CommonConstants.FULL_STOP + temp, extension);
+				// urlMap.put(urlString, level + CommonConstants.FULL_STOP +
+				// temp
+				// + extension);
+				// isSuccess = true;
 				return null;
 			}
 		} else {
