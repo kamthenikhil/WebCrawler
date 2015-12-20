@@ -2,7 +2,6 @@ package com.chinappa.crawler;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,7 +10,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import com.chinappa.crawler.configuration.WebCrawlerConfiguration;
-import com.chinappa.crawler.constant.CrawlerConstants;
 import com.chinappa.crawler.util.PageRankUtil;
 import com.chinappa.information.retrieval.constant.CommonConstants;
 import com.chinappa.information.retrieval.util.FileHandlerUtil;
